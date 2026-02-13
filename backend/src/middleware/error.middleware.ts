@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { ApiError } from '../shared'
+import { ApiError } from '../shared/src/types'
 
 export function errorHandler(
   err: Error | ApiError,
