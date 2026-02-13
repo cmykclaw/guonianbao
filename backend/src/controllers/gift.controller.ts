@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import type { ApiResponse, CreateGiftRecordRequest } from '@guonianbao/shared'
+import type { ApiResponse, CreateGiftRecordRequest } from '../shared/src/types'
 import * as giftService from '../services/gift.service'
 
 /**

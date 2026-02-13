@@ -1,5 +1,5 @@
 import { prisma } from '../config/database'
-import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
+import type { GiftRecordDTO, CreateGiftRecordRequest } from '../shared/src/types'
 
 /**
  * 获取所有礼薄记录
