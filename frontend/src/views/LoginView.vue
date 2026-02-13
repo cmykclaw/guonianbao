@@ -56,7 +56,7 @@ function getOrCreateDeviceId(): string {
 
 async function checkDeviceStatus() {
   try {
-    const response = await fetch('http://localhost:3000/api/auth/check-device', {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/check-device`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deviceId: deviceId.value })
@@ -77,7 +77,7 @@ async function submitPin() {
   const endpoint = isRegistered.value ? '/api/auth/verify-pin' : '/api/auth/register-pin'
 
   try {
-    const response = await fetch(`http://localhost:3000${endpoint}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -179,7 +179,7 @@ async function generateAI(type: 'greeting' | 'comeback') {
   aiResults.value = []
   
   try {
-    const response = await fetch('http://localhost:3000/api/tips/generate', {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tips/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

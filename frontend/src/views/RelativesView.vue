@@ -139,7 +139,7 @@ function calculateComplexRelation(inputStr: string): string[] {
 
 async function callAIApi(relation: string): Promise<string | null> {
   try {
-    const response = await fetch('http://localhost:3000/api/relatives/calculate', {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/relatives/calculate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
