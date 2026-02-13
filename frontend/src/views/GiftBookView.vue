@@ -21,10 +21,10 @@
     </div>
 
     <!-- 记录列表 -->
-    <div class="record-list">
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
         v-model:loading="loading"
-        :finished="true"
+        :finished="finished"
         finished-text="没有更多了"
       >
         <van-cell
@@ -45,7 +45,7 @@
         </van-cell>
         <van-empty v-if="records.length === 0" description="暂无记录" />
       </van-list>
-    </div>
+    </van-pull-refresh>
 
     <!-- 悬浮按钮 -->
     <div class="fab-button" @click="showAddModal = true">
@@ -120,6 +120,8 @@ import { getGiftRecords, createGiftRecord } from '@/api/gift'
 // 数据状态
 const records = ref<GiftRecordDTO[]>([])
 const loading = ref(false)
+const refreshing = ref(false)
+const finished = ref(true)
 const showAddModal = ref(false)
 const submitting = ref(false)
 
@@ -157,7 +159,7 @@ const formatDate = (dateStr: string): string => {
 }
 
 // 加载数据
-const loadRecords = async () => {
+const loadGifts = async () => {
   loading.value = true
   try {
     records.value = await getGiftRecords()
@@ -166,7 +168,13 @@ const loadRecords = async () => {
     console.error(error)
   } finally {
     loading.value = false
+    refreshing.value = false
   }
+}
+
+// 下拉刷新
+const onRefresh = async () => {
+  await loadGifts()
 }
 
 // 提交表单
@@ -182,7 +190,7 @@ const onSubmit = async () => {
     formData.amount = 0
     formData.notes = ''
     // 刷新列表
-    await loadRecords()
+    await loadGifts()
   } catch (error) {
     showToast('添加失败')
     console.error(error)
@@ -193,7 +201,7 @@ const onSubmit = async () => {
 
 // 页面加载时获取数据
 onMounted(() => {
-  loadRecords()
+  loadGifts()
 })
 </script>
 
