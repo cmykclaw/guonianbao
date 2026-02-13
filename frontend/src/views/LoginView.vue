@@ -62,7 +62,8 @@ async function checkDeviceStatus() {
       body: JSON.stringify({ deviceId: deviceId.value })
     })
     const data = await response.json()
-    isRegistered.value = data.isRegistered
+    // 后端返回 isRegistered 时，强制转换为布尔值，防止前端误判
+    isRegistered.value = Boolean(data.isRegistered)
   } catch (error) {
     console.error('Check device error:', error)
   }
@@ -95,7 +96,14 @@ async function submitPin() {
     router.replace('/gifts')
   } catch (error) {
     console.error('Auth error:', error)
-    showToast('安全码错误，请重试')
+    if (isRegistered.value) {
+      // 已注册设备，走验证流程
+      showToast('安全码错误，请重试')
+    } else {
+      // 未注册设备，走注册流程
+      showToast('安全码设置失败，请重试')
+    }
+    // 无论注册还是验证，只要接口报错，都清空输入
     pin.value = ''
   } finally {
     loading.value = false
