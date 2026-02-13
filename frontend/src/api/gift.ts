@@ -1,6 +1,7 @@
 import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
 
-const API_BASE = 'http://localhost:3000/api'
+// const API_BASE = 'http://localhost:3000/api'
+const API_BASE = 'https://guonianbao-backend.vercel.app/api'
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('token')
