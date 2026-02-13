@@ -7,8 +7,17 @@ export const app = express()
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173'],
-  credentials: true
+  /**
+   * 为了兼容本地开发和 Vercel 部署，这里：
+   * - development：放行 Vite 本地地址
+   * - production：放行任意前端域名（也可以改成精确白名单）
+   */
+  origin: process.env.NODE_ENV === 'production'
+    ? true // 生产环境：自动反射请求来源
+    : ['http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
