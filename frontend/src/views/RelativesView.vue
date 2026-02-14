@@ -243,7 +243,6 @@ const relativesData: Relative[] = [
   { relation: '妈妈的妹妹', title: '姨姨 / 姨妈', category: '母族' },
   { relation: '外公的侄女', title: '堂姨', category: '母族' },
   { relation: '外婆的外甥女', title: '姑表姨母', category: '母族' },
-  { relation: '表哥的妹妹', title: '', category: '母族' },
   { relation: '表姐', title: '表姐 / 表妹', category: '母族' },
   { relation: '堂哥', title: '堂哥 / 堂弟', category: '母族' },
   { relation: '堂姐', title: '堂姐 / 堂妹', category: '母族' },
