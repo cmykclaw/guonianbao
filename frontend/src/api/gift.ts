@@ -1,4 +1,4 @@
-import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
+import type { GiftRecordDTO, CreateGiftRecordRequest } from '../../shared/src/types/index.ts'
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL}/api`
 

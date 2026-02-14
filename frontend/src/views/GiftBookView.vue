@@ -111,17 +111,21 @@
   </div>
 </template>
 
+<script lang="ts">
+import { ref } from 'vue';
+import type { GiftRecordDTO } from '@guonianbao/shared';
+
+const globalRecords = ref<GiftRecordDTO[]>([]);
+let globalLastFetchTime = 0;
+</script>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onActivated, reactive } from 'vue'
 import { showToast } from 'vant'
 import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
 import { getGiftRecords, createGiftRecord } from '@/api/gift'
 
-// 缓存变量
-let lastFetchTime = 0
-
-// 数据状态
-const records = ref<GiftRecordDTO[]>([])
+const records = globalRecords
 const loading = ref(false)
 const refreshing = ref(false)
 const finished = ref(true)
@@ -164,21 +168,21 @@ const formatDate = (dateStr: string): string => {
 // 加载数据
 const loadGifts = async (force = false, isSilent = false) => {
   const now = Date.now()
-  if (!force && lastFetchTime > 0 && now - lastFetchTime < 30000 && records.value.length > 0) {
+  if (!force && globalLastFetchTime > 0 && now - globalLastFetchTime < 30000 && globalRecords.value.length > 0) {
     refreshing.value = false
     return
   }
   
-// 只有在“非静默模式”或者“本地真的一条数据都没有”时，才显示底部的 Loading
-  if (!isSilent || records.value.length === 0) {
+  if (!isSilent || globalRecords.value.length === 0) {
     loading.value = true
   }
 
   try {
-    records.value = await getGiftRecords()
-    lastFetchTime = now
+    const newData = await getGiftRecords()
+    globalRecords.value = newData
+    globalLastFetchTime = Date.now()
   } catch (error) {
-    showToast('加载数据失败')
+    if (!isSilent) showToast('加载数据失败')
     console.error(error)
   } finally {
     loading.value = false
@@ -186,7 +190,7 @@ const loadGifts = async (force = false, isSilent = false) => {
   }
 }
 
-// 下拉刷新
+
 const onRefresh = async () => {
   await loadGifts(true)
 }
