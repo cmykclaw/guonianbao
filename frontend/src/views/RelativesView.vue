@@ -4,7 +4,7 @@
 
     <van-search
       v-model="searchText"
-      placeholder="输入关系，如：老婆的弟弟"
+      placeholder="输入关系，如：老婆的爷爷的堂姐的孙女婿"
       @search="onSearch"
       clearable
     />
@@ -41,41 +41,20 @@
     </div>
 
     <div v-else class="category-table">
-      <van-tabs v-model:active="activeTab" sticky>
-        <van-tab title="爸爸这边的">
-          <van-cell-group>
-            <van-cell
-              v-for="(item, index) in fatherRelatives"
-              :key="index"
-              :title="item.relation"
-              :value="item.title"
-              value-class="title-highlight"
-            />
-          </van-cell-group>
-        </van-tab>
-        <van-tab title="妈妈这边的">
-          <van-cell-group>
-            <van-cell
-              v-for="(item, index) in motherRelatives"
-              :key="index"
-              :title="item.relation"
-              :value="item.title"
-              value-class="title-highlight"
-            />
-          </van-cell-group>
-        </van-tab>
-        <van-tab title="伴侣这边的">
-          <van-cell-group>
-            <van-cell
-              v-for="(item, index) in spouseRelatives"
-              :key="index"
-              :title="item.relation"
-              :value="item.title"
-              value-class="title-highlight"
-            />
-          </van-cell-group>
-        </van-tab>
-      </van-tabs>
+      <van-collapse v-model="activeNames" accordion>
+        <van-collapse-item title="🤯 堂表迷阵 (同辈)" name="1">
+          <van-cell v-for="(item, index) in group1" :key="index" :title="item.title" :label="item.relation" title-class="hardcore-title" />
+        </van-collapse-item>
+        <van-collapse-item title="👑 长辈配偶 (最怕叫错)" name="2">
+          <van-cell v-for="(item, index) in group2" :key="index" :title="item.title" :label="item.relation" title-class="hardcore-title" />
+        </van-collapse-item>
+        <van-collapse-item title="🧧 混淆晚辈 (发红包必看)" name="3">
+          <van-cell v-for="(item, index) in group3" :key="index" :title="item.title" :label="item.relation" title-class="hardcore-title" />
+        </van-collapse-item>
+        <van-collapse-item title="💍 婚后专属 (地狱级难度)" name="4">
+          <van-cell v-for="(item, index) in group4" :key="index" :title="item.title" :label="item.relation" title-class="hardcore-title" />
+        </van-collapse-item>
+      </van-collapse>
     </div>
   </div>
 </template>
@@ -86,9 +65,9 @@ import { useRouter } from 'vue-router'
 import relationship from 'relationship.js'
 
 interface Relative {
-  relation: string
-  title: string
-  category: '父族' | '母族' | '伴侣族'
+  relation: string;
+  title: string;
+  category: '堂表迷阵' | '长辈配偶' | '复杂晚辈' | '婚后专属';
 }
 
 interface CalculationResult {
@@ -98,7 +77,7 @@ interface CalculationResult {
 
 const router = useRouter()
 const searchText = ref('')
-const activeTab = ref(0)
+const activeNames = ref(['1'])
 const isAILoading = ref(false)
 
 function cleanInput(input: string): string {
@@ -226,49 +205,27 @@ watch(searchText, () => {
 })
 
 const relativesData: Relative[] = [
-  { relation: '爸爸的哥哥', title: '伯父 / 大爷', category: '父族' },
-  { relation: '爸爸的弟弟', title: '叔叔', category: '父族' },
-  { relation: '爸爸的姐姐', title: '姑姑 / 姑妈', category: '父族' },
-  { relation: '爸爸的妹妹', title: '姑姑 / 姑妈', category: '父族' },
-  { relation: '爷爷', title: '爷爷', category: '父族' },
-  { relation: '奶奶', title: '奶奶', category: '父族' },
-  { relation: '哥哥', title: '哥哥', category: '父族' },
-  { relation: '弟弟', title: '弟弟', category: '父族' },
-  { relation: '姐姐', title: '姐姐', category: '父族' },
-  { relation: '妹妹', title: '妹妹', category: '父族' },
-  { relation: '妈妈的哥哥', title: '舅舅', category: '母族' },
-  { relation: '妈妈的弟弟', title: '舅舅', category: '母族' },
-  { relation: '妈妈的姐姐', title: '姨姨 / 姨妈', category: '母族' },
-  { relation: '妈妈的妹妹', title: '姨姨 / 姨妈', category: '母族' },
-  { relation: '外公', title: '外公 / 姥爷', category: '母族' },
-  { relation: '外婆', title: '外婆 / 姥姥', category: '母族' },
-  { relation: '表哥', title: '表哥 / 表弟', category: '母族' },
-  { relation: '表姐', title: '表姐 / 表妹', category: '母族' },
-  { relation: '堂哥', title: '堂哥 / 堂弟', category: '母族' },
-  { relation: '堂姐', title: '堂姐 / 堂妹', category: '母族' },
-  { relation: '老婆', title: '老婆', category: '伴侣族' },
-  { relation: '老公', title: '老公', category: '伴侣族' },
-  { relation: '老婆的哥哥', title: '大舅子', category: '伴侣族' },
-  { relation: '老婆的弟弟', title: '小舅子', category: '伴侣族' },
-  { relation: '老婆的姐姐', title: '大姨子', category: '伴侣族' },
-  { relation: '老婆的妹妹', title: '小姨子', category: '伴侣族' },
-  { relation: '老公的哥哥', title: '大伯子', category: '伴侣族' },
-  { relation: '老公的弟弟', title: '小叔子', category: '伴侣族' },
-  { relation: '老公的姐姐', title: '大姑子', category: '伴侣族' },
-  { relation: '老公的妹妹', title: '小姑子', category: '伴侣族' },
+  { relation: '爸爸的兄弟的孩子', title: '堂哥 / 堂弟 / 堂姐 / 堂妹', category: '堂表迷阵' },
+  { relation: '爸爸的姐妹的孩子', title: '表哥 / 表弟 / 表姐 / 表妹', category: '堂表迷阵' },
+  { relation: '妈妈的兄弟的孩子', title: '表哥 / 表弟 / 表姐 / 表妹', category: '堂表迷阵' },
+  { relation: '妈妈的姐妹的孩子', title: '表哥 / 表弟 / 表姐 / 表妹', category: '堂表迷阵' },
+  { relation: '爸爸的姐妹的丈夫', title: '姑父', category: '长辈配偶' },
+  { relation: '妈妈的兄弟的妻子', title: '舅妈', category: '长辈配偶' },
+  { relation: '妈妈的姐妹的丈夫', title: '姨夫', category: '长辈配偶' },
+  { relation: '爸爸的哥哥的妻子', title: '伯母 / 大妈', category: '长辈配偶' },
+  { relation: '爸爸的弟弟的妻子', title: '婶婶', category: '长辈配偶' },
+  { relation: '(男视角) 兄弟的孩子', title: '侄子 / 侄女', category: '复杂晚辈' },
+  { relation: '妻子的姐妹的丈夫', title: '连襟', category: '婚后专属' },
+  { relation: '丈夫的兄弟的妻子', title: '妯娌', category: '婚后专属' },
+  { relation: '妻子的兄弟', title: '大舅哥 / 小舅子', category: '婚后专属' },
+  { relation: '丈夫的姐妹', title: '大姑子 / 小姑子', category: '婚后专属' },
+  { relation: '妻子的姐妹', title: '大姨子 / 小姨子', category: '婚后专属' }
 ]
 
-const fatherRelatives = computed(() =>
-  relativesData.filter(item => item.category === '父族')
-)
-
-const motherRelatives = computed(() =>
-  relativesData.filter(item => item.category === '母族')
-)
-
-const spouseRelatives = computed(() =>
-  relativesData.filter(item => item.category === '伴侣族')
-)
+const group1 = computed(() => relativesData.filter(item => item.category === '堂表迷阵'))
+const group2 = computed(() => relativesData.filter(item => item.category === '长辈配偶'))
+const group3 = computed(() => relativesData.filter(item => item.category === '复杂晚辈'))
+const group4 = computed(() => relativesData.filter(item => item.category === '婚后专属'))
 
 const searchResults = computed(() => {
   if (!searchText.value) return []
@@ -322,6 +279,12 @@ const onBack = () => {
 
   :deep(.van-empty) {
     padding: 60px 0;
+  }
+
+  :deep(.hardcore-title) {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--van-primary-color);
   }
 }
 </style>
