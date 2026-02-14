@@ -112,8 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, onActivated, reactive } from 'vue'
 import { showToast } from 'vant'
 import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
 import { getGiftRecords, createGiftRecord } from '@/api/gift'
@@ -201,7 +200,7 @@ const onSubmit = async () => {
     formData.amount = 0
     formData.notes = ''
     // 刷新列表
-    await loadGifts()
+    await loadGifts(true)
   } catch (error) {
     showToast('添加失败')
     console.error(error)
@@ -215,16 +214,10 @@ onMounted(() => {
   loadGifts()
 })
 
-// 路由监听
-const route = useRoute()
-watch(
-  () => route.path,
-  (newPath) => {
-    if (newPath === '/gifts') {
-      loadGifts()
-    }
-  }
-)
+// 页面激活时刷新数据（从 keep-alive 缓存返回时触发）
+onActivated(() => {
+  loadGifts(true)
+})
 </script>
 
 <style scoped lang="scss">
