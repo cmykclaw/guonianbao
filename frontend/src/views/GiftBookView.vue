@@ -162,14 +162,18 @@ const formatDate = (dateStr: string): string => {
 }
 
 // 加载数据
-const loadGifts = async (force = false) => {
+const loadGifts = async (force = false, isSilent = false) => {
   const now = Date.now()
   if (!force && lastFetchTime > 0 && now - lastFetchTime < 30000 && records.value.length > 0) {
     refreshing.value = false
     return
   }
   
-  loading.value = true
+// 只有在“非静默模式”或者“本地真的一条数据都没有”时，才显示底部的 Loading
+  if (!isSilent || records.value.length === 0) {
+    loading.value = true
+  }
+
   try {
     records.value = await getGiftRecords()
     lastFetchTime = now
@@ -200,7 +204,8 @@ const onSubmit = async () => {
     formData.amount = 0
     formData.notes = ''
     // 刷新列表
-    await loadGifts(true)
+    // 强制立刻去服务器拉取最新数据，并且不用静默（让用户看到刷新动作）
+    await loadGifts(true, false)
   } catch (error) {
     showToast('添加失败')
     console.error(error)
@@ -216,7 +221,9 @@ onMounted(() => {
 
 // 页面激活时刷新数据（从 keep-alive 缓存返回时触发）
 onActivated(() => {
-  loadGifts(true)
+// 第一个参数 false：优先使用30秒缓存
+  // 第二个参数 true：就算过期了要刷新，也在后台偷偷刷，不打断用户看历史记录
+  loadGifts(false, true)
 })
 </script>
 
