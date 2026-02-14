@@ -53,6 +53,24 @@ const onTabChange = (index: number) => {
 @use './styles/variables' as *;
 @use './styles/global.scss';
 
+:root {
+  /* 全局主色调：喜庆的中国红 */
+  --van-primary-color: #ee0a24;
+  
+  /* 顶部导航栏定制：红底白字 */
+  --van-nav-bar-background: #ee0a24;
+  --van-nav-bar-title-text-color: #ffffff;
+  --van-nav-bar-icon-color: #ffffff;
+  --van-nav-bar-text-color: #ffffff;
+  
+  /* 底部标签栏选中颜色 */
+  --van-tabbar-item-active-color: #ee0a24;
+
+  /* 按钮定制：让主要按钮更圆润饱满一点 */
+  --van-button-primary-background: #ee0a24;
+  --van-button-primary-border-color: #ee0a24;
+}
+
 .app {
   min-height: 100vh;
   padding-bottom: calc(var(--van-tabbar-height) + env(safe-area-inset-bottom));
