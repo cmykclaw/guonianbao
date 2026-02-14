@@ -112,10 +112,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import type { GiftRecordDTO, CreateGiftRecordRequest } from '@guonianbao/shared'
 import { getGiftRecords, createGiftRecord } from '@/api/gift'
+
+// 缓存变量
+let lastFetchTime = 0
 
 // 数据状态
 const records = ref<GiftRecordDTO[]>([])
@@ -159,10 +163,17 @@ const formatDate = (dateStr: string): string => {
 }
 
 // 加载数据
-const loadGifts = async () => {
+const loadGifts = async (force = false) => {
+  const now = Date.now()
+  if (!force && lastFetchTime > 0 && now - lastFetchTime < 30000 && records.value.length > 0) {
+    refreshing.value = false
+    return
+  }
+  
   loading.value = true
   try {
     records.value = await getGiftRecords()
+    lastFetchTime = now
   } catch (error) {
     showToast('加载数据失败')
     console.error(error)
@@ -174,7 +185,7 @@ const loadGifts = async () => {
 
 // 下拉刷新
 const onRefresh = async () => {
-  await loadGifts()
+  await loadGifts(true)
 }
 
 // 提交表单
@@ -203,6 +214,17 @@ const onSubmit = async () => {
 onMounted(() => {
   loadGifts()
 })
+
+// 路由监听
+const route = useRoute()
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath === '/gifts') {
+      loadGifts()
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">
