@@ -48,13 +48,15 @@ const showKeyboard = ref(true)
 function getOrCreateDeviceId(): string {
   let id = localStorage.getItem('deviceId')
   if (!id) {
-    id = crypto.randomUUID()
+    id = Date.now().toString() + Math.random().toString(36).substring(2)
     localStorage.setItem('deviceId', id)
   }
   return id
 }
 
 async function checkDeviceStatus() {
+  deviceId.value = getOrCreateDeviceId()
+  
   try {
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/check-device`, {
       method: 'POST',
@@ -73,6 +75,8 @@ async function submitPin() {
   if (pin.value.length !== 4) return
 
   loading.value = true
+  
+  deviceId.value = getOrCreateDeviceId()
 
   const endpoint = isRegistered.value ? '/api/auth/verify-pin' : '/api/auth/register-pin'
 
