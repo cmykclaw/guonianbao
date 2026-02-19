@@ -6,26 +6,12 @@
       </div>
 
       <div class="title">
-        {{ isRegistered ? '请输入 4 位安全码' : '初次使用，请设置 4 位安全码' }}
+        正在进入...
       </div>
 
       <div class="hint">
-        安全码用于保护您的礼薄隐私（清空浏览器缓存将丢失数据）
+        您的数据存储在当前设备，清空浏览器缓存将丢失数据
       </div>
-
-      <van-password-input
-        :value="pin"
-        :length="4"
-        :focused="showKeyboard"
-        @focus="showKeyboard = true"
-      />
-
-      <van-number-keyboard
-        v-model="pin"
-        :show="showKeyboard"
-        :maxlength="4"
-        @blur="showKeyboard = false"
-      />
 
       <van-loading v-if="loading" class="loading" />
     </div>
@@ -33,17 +19,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 
 const router = useRouter()
 
-const deviceId = ref('')
-const pin = ref('')
-const isRegistered = ref(false)
 const loading = ref(false)
-const showKeyboard = ref(true)
 
 function getOrCreateDeviceId(): string {
   let id = localStorage.getItem('deviceId')
@@ -54,40 +36,16 @@ function getOrCreateDeviceId(): string {
   return id
 }
 
-async function checkDeviceStatus() {
-  deviceId.value = getOrCreateDeviceId()
+async function autoLogin() {
+  loading.value = true
   
+  const deviceId = getOrCreateDeviceId()
+
   try {
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/check-device`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceId: deviceId.value })
-    })
-    const data = await response.json()
-    // 后端返回 isRegistered 时，强制转换为布尔值，防止前端误判
-    isRegistered.value = Boolean(data.isRegistered)
-  } catch (error) {
-    console.error('Check device error:', error)
-  }
-}
-
-async function submitPin() {
-  if (pin.value.length !== 4) return
-
-  loading.value = true
-  
-  deviceId.value = getOrCreateDeviceId()
-
-  const endpoint = isRegistered.value ? '/api/auth/verify-pin' : '/api/auth/register-pin'
-
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deviceId: deviceId.value,
-        pin: pin.value
-      })
+      body: JSON.stringify({ deviceId })
     })
 
     if (!response.ok) {
@@ -96,34 +54,28 @@ async function submitPin() {
 
     const data = await response.json()
     localStorage.setItem('token', data.token)
-    showToast('登录成功')
     router.replace('/gifts')
   } catch (error) {
-    console.error('Auth error:', error)
-    if (isRegistered.value) {
-      // 已注册设备，走验证流程
-      showToast('安全码错误，请重试')
-    } else {
-      // 未注册设备，走注册流程
-      showToast('安全码设置失败，请重试')
-    }
-    // 无论注册还是验证，只要接口报错，都清空输入
-    pin.value = ''
+    console.error('Auto login error:', error)
+    showToast('登录失败，请重试')
   } finally {
     loading.value = false
   }
 }
 
-watch(pin, (newVal) => {
-  if (newVal.length === 4) {
-    submitPin()
-  }
-})
-
 onMounted(() => {
-  deviceId.value = getOrCreateDeviceId()
-  checkDeviceStatus()
+  autoLogin()
 })
+</script>
+
+<script lang="ts">
+import { ref } from 'vue'
+
+export default {
+  setup() {
+    return { loading: ref(false) }
+  }
+}
 </script>
 
 <style scoped lang="scss">
