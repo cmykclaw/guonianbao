@@ -12,5 +12,9 @@ if (process.env.VERCEL !== '1') {
   })
 }
 
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
+
 // 必须导出 app，供 Vercel Serverless 引擎调用
 export default app
