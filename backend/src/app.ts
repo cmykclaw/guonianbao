@@ -15,13 +15,19 @@ const whitelist = [
 // 2. 配置 CORS
 app.use(cors({
   origin: (origin, callback) => {
-    // 允许没有 origin 的请求 (比如移动端应用或 curl)
-    if (!origin) return callback(null, true);
-    
-    if (whitelist.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    // 打印当前请求的真实 Origin，非常关键！
+    console.log('当前请求的 Origin 是:', origin);
+
+    // 逻辑：如果是本地开发，或者 Origin 在白名单内，或者 Origin 包含你的域名
+    if (
+      !origin || 
+      whitelist.includes(origin) || 
+      origin.includes('guonianbao.fun') // 模糊匹配，只要包含域名就放行
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // 在错误信息里带上 Origin，方便在日志里直接看到
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
