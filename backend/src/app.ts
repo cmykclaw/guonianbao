@@ -13,7 +13,7 @@ app.use(cors({
    * - production：放行任意前端域名（也可以改成精确白名单）
    */
   origin: process.env.NODE_ENV === 'production'
-    ? true // 生产环境：自动反射请求来源
+    ? ['https://guonianbao.fun'] // 生产环境：自动反射请求来源
     : ['http://localhost:5173'],
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
