@@ -5,22 +5,42 @@ import { errorHandler } from './middleware/error.middleware'
 
 export const app = express()
 
-// Middleware
+// 1. 定义白名单
+const whitelist = [
+  'https://guonianbao.fun',
+  'https://www.guonianbao.fun', // 必须加上带 www 的版本
+  'http://localhost:5173'
+]
+
+// 2. 配置 CORS
 app.use(cors({
-  /**
-   * 为了兼容本地开发和 Vercel 部署，这里：
-   * - development：放行 Vite 本地地址
-   * - production：放行任意前端域名（也可以改成精确白名单）
-   */
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://guonianbao.fun'] // 生产环境：自动反射请求来源
-    : ['http://localhost:5173'],
+  origin: (origin, callback) => {
+    // 允许没有 origin 的请求 (比如移动端应用或 curl)
+    if (!origin) return callback(null, true);
+    
+    if (whitelist.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }))
+
+// 3. 显式处理 OPTIONS 预检请求 (解决某些浏览器下 Vercel 函数返回 404 的问题)
+app.options('*', (req, res) => {
+  res.status(204).end();
+});
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// 根路径测试 (你之前发现访问 api 域名返回 404，加上这个可以用来排查)
+app.get('/', (req, res) => {
+  res.send('API is running... (Guonianbao Backend)');
+});
 
 // Routes
 app.use('/api', routes)
