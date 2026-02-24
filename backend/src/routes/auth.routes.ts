@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 const router = Router()
 const prisma = new PrismaClient()
 
-const JWT_SECRET = process.env.JWT_SECRET || 'guonianbao-secret-key'
+const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = '7d'
 
 router.post('/check-device', async (req, res) => {
