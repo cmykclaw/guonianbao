@@ -28,6 +28,10 @@ router.post('/check-device', async (req, res) => {
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
 
+    const decodedTest = jwt.decode(token) as any;
+    console.log('[Debug] 新签发的 Token 过期时间戳 (exp):', decodedTest.exp);
+    console.log('[Debug] 当前服务器时间戳:', Math.floor(Date.now() / 1000));
+
     res.json({ token, deviceId: user.deviceId })
   } catch (error) {
     console.error('Check device error:', error)
