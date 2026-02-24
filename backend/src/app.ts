@@ -5,28 +5,30 @@ import { errorHandler } from './middleware/error.middleware'
 
 export const app = express()
 
-// 1. 定义白名单
+// 1. 定义固定白名单
 const whitelist = [
   'https://guonianbao.fun',
-  'https://www.guonianbao.fun', // 必须加上带 www 的版本
+  'https://www.guonianbao.fun',
   'http://localhost:5173'
 ]
 
-// 2. 配置 CORS
+// 2. 配置更灵活的 CORS 逻辑
 app.use(cors({
   origin: (origin, callback) => {
-    // 打印当前请求的真实 Origin，非常关键！
-    console.log('当前请求的 Origin 是:', origin);
+    // 允许没有 origin 的请求（如移动端）
+    if (!origin) return callback(null, true);
 
-    // 逻辑：如果是本地开发，或者 Origin 在白名单内，或者 Origin 包含你的域名
-    if (
-      !origin || 
-      whitelist.includes(origin) || 
-      origin.includes('guonianbao.fun') // 模糊匹配，只要包含域名就放行
-    ) {
+    // 校验逻辑：
+    const isWhitelisted = whitelist.includes(origin);
+    // 重点：允许任何以 .vercel.app 结尾的域名（解决预览链接问题）
+    const isVercelPreview = origin.endsWith('.vercel.app');
+    // 重点：允许任何包含你自定义域名的请求
+    const isCustomDomain = origin.endsWith('guonianbao.fun');
+
+    if (isWhitelisted || isVercelPreview || isCustomDomain || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
-      // 在错误信息里带上 Origin，方便在日志里直接看到
+      // 这里的错误信息能帮你快速定位非法来源
       callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
